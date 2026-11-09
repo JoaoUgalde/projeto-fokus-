@@ -37,7 +37,7 @@ curtoBT.addEventListener("click", () => {
 });
 
 longoBT.addEventListener("click", () => {
-  tempoEmSegundos= 900;
+  tempoEmSegundos = 900;
   alterarContexto("descanso-longo");
 });
 
@@ -78,15 +78,30 @@ const clear = () => {
 };
 
 const TempoRegressivo = () => {
-  mostrarTempoNaTela();
   tempoEmSegundos -= 1;
+  mostrarTempoNaTela();
   if (tempoEmSegundos <= 0) {
+    const focoAtivo = html.getAttribute("data-contexto") == 'foco';
+    if (focoAtivo) {
+      const evento = new CustomEvent("FocoFinalizado");
+      document.dispatchEvent(evento);
+    }
     clear();
-    tempoEmSegundos = 5;
     console.log("tempo esgotado!!");
     tempoEsgotado.play();
     startPauseBotton.textContent = "play";
     trocarImagem();
+    mostrarTempoNaTela();
+    const contextoAtual = html.getAttribute("data-contexto");
+        if (contextoAtual === "foco") {
+      tempoEmSegundos = 1500; 
+    } else if (contextoAtual === "descanso-curto") {
+      tempoEmSegundos = 300;   
+    } else if (contextoAtual === "descanso-longo") {
+      tempoEmSegundos = 900;  
+    }
+
+    mostrarTempoNaTela(); 
     return;
   }
 };
@@ -122,6 +137,7 @@ function mostrarTempoNaTela() {
   const tempoFormatado = tempo.toLocaleTimeString("pt-br", {
     minute: "2-digit",
     second: "2-digit",
+    timeZone: "UTC",
   });
   TempoNaTela.innerHTML = `${tempoFormatado}`;
 }
